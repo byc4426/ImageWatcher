@@ -11,6 +11,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -29,8 +31,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -701,9 +703,14 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
             final boolean isPlayEnterAnimation = isFindEnterImagePicture;
             // loadHighDefinitionPicture
-            Glide.with(imageView.getContext()).load(mUrlList.get(pos)).asBitmap().into(new SimpleTarget<Bitmap>() {
+            Glide.with(imageView.getContext()).asBitmap().load(mUrlList.get(pos)).into(new SimpleTarget<Bitmap>() {
                 @Override
-                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                public void onLoadStarted(Drawable placeholder) {
+                    notifyItemChangedState(pos, true, false);
+                }
+
+                @Override
+                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                     final int sourceDefaultWidth, sourceDefaultHeight, sourceDefaultTranslateX, sourceDefaultTranslateY;
                     int resourceImageWidth = resource.getWidth();
                     int resourceImageHeight = resource.getHeight();
@@ -732,16 +739,6 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
                         imageView.setAlpha(0f);
                         imageView.animate().alpha(1).start();
                     }
-                }
-
-                @Override
-                public void onLoadStarted(Drawable placeholder) {
-                    notifyItemChangedState(pos, true, false);
-                }
-
-                @Override
-                public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                    notifyItemChangedState(pos, false, imageView.getDrawable() == null);
                 }
             });
 

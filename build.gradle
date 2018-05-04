@@ -3,27 +3,25 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:3.1.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
-
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1"
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+        
     }
 }
 
 allprojects {
     repositories {
+        mavenCentral()
         jcenter()
-    }
-
-    tasks.withType(Javadoc).all {
-        enabled = false
-        options.setEncoding('UTF-8')
+        maven { url 'https://jitpack.io' }
+        maven { url 'http://www.idescout.com/maven/repo/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+        google()
     }
 }
 

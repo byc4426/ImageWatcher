@@ -9,20 +9,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 
 public class MessageAdapter extends RecyclerView.Adapter {
     private final List<Data> mDataList = new ArrayList<>();
-    private final CropCircleTransformation mCropCircleTransformation;
     private MessagePicturesLayout.Callback mCallback;
 
     MessageAdapter(Context context) {
-        mCropCircleTransformation = new CropCircleTransformation(context);
     }
 
     public MessageAdapter setPictureClickCallback(MessagePicturesLayout.Callback callback) {
@@ -57,8 +56,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
         void refresh(int pos) {
             mData = mDataList.get(pos);
+            RequestOptions options = new RequestOptions();
+            options.placeholder(R.drawable.default_avatar);
+            options.centerCrop();
             Glide.with(itemView.getContext()).load(mData.getAvatar())
-                    .placeholder(R.drawable.default_avatar).bitmapTransform(mCropCircleTransformation).into(iAvatar);
+                    .apply(options)
+                    .transition(withCrossFade())
+                    .into(iAvatar);
             tNickname.setText(mData.getNickname());
             tTime.setText(mData.getCreateTime());
             tContent.setText(mData.getContent());
