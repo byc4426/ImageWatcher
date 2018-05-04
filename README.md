@@ -6,25 +6,22 @@
 *支持多图查看，快速翻页，双击放大，单击退出，双手缩放旋转图片
 *下拽退出查看图片的操作，以及效果是本View的最大卖点(仿微信)
 
-![image](https://github.com/iielse/DemoProjects/blob/master/P02_ImageWatcher/previews/111.gif)
-![image](https://github.com/iielse/DemoProjects/blob/master/P02_ImageWatcher/previews/222.gif)
-![image](https://github.com/iielse/DemoProjects/blob/master/P02_ImageWatcher/previews/333.gif)
-![image](https://github.com/iielse/DemoProjects/blob/master/P02_ImageWatcher/previews/444.gif)
+![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/111.gif)
+![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/222.gif)
+![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/333.gif)
+![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/444.gif)
 
-## 下载（强烈推荐下载体验）
 
-[DemoApp.apk](https://github.com/iielse/DemoProjects/blob/master/P02_ImageWatcher/previews/app-debug.apk)
-
-至尊体验;daLao专用;上图Gif不够看？下载apk自行体验; /doge
 
 ## 实现步骤
 
 在module的gradle
 ```
-compile 'ch.ielse:imagewatcher:1.0.0'
+compile 'ch.ielse:imagewatcher:1.0.3'
 ```
 
-首先在xml布局中
+#### 方法一
+* 在Activity对应布局文件
 ```
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,23 +34,74 @@ compile 'ch.ielse:imagewatcher:1.0.0'
         android:id="@+id/v_image_watcher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
-    <!-- 在跟布局的下面盖上的一个ImageWatcher,ImageWatcher初始化默认是INVISIABLE的 -->
 </FrameLayout>
 ```
 
-蓝后在Activity onCreate里面 一般需要调用这3个API简单的初始化一下
+* 然后在Activity onCreate里面简单的初始化一下
 
 ```
-// 一般来讲， ImageWatcher 需要占据全屏的位置
-ImageWatcher vImageWatcher = (ImageWatcher) findViewById(R.id.v_image_watcher);
-// 如果是透明状态栏，你需要给ImageWatcher标记 一个偏移值，以修正点击ImageView查看的启动动画的Y轴起点的不正确
-vImageWatcher.setTranslucentStatus(!isTranslucentStatus ? Utils.calcStatusBarHeight(this) : 0);
-// 配置error图标，imageWatcher里面有默认图标，你并不一定要调用这个API
-vImageWatcher.setErrorImageRes(R.mipmap.error_picture);
-// 长按图片的回调，你可以显示一个框继续提供一些复制，发送等功能
-vImageWatcher.setOnPictureLongPressListener(this);
+        vImageWatcher = (ImageWatcher) findViewById(R.id.v_image_watcher); // 一般来讲， ImageWatcher 需要占据全屏的位置
+        vImageWatcher.setTranslucentStatus(!isTranslucentStatus ? Utils.calcStatusBarHeight(this) : 0);  // 如果是透明状态栏，你需要给ImageWatcher标记 一个偏移值，以修正点击ImageView查看的启动动画的Y轴起点的不正确
+        vImageWatcher.setErrorImageRes(R.mipmap.error_picture);  // 配置error图标 如果不介意使用lib自带的图标，并不一定要调用这个API
+        vImageWatcher.setOnPictureLongPressListener(this); // 长按图片的回调，你可以显示一个框继续提供一些复制，发送等功能
+        vImageWatcher.setLoader(new ImageWatcher.Loader() {//调用show方法前，请先调用setLoader 给ImageWatcher提供加载图片的实现
+            @Override
+            public void load(Context context, String url, final ImageWatcher.LoadCallback lc) {
+                Glide.with(context).asBitmap().load(url).into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                        lc.onResourceReady(resource);
+                    }
+
+                    @Override
+                    public void onLoadStarted(Drawable placeholder) {
+                        lc.onLoadStarted(placeholder);
+                    }
+
+                    @Override
+                    public void onLoadFailed(Drawable errorDrawable) {
+                        lc.onLoadFailed(errorDrawable);
+                    }
+                });
+            }
+        });
 ```
+
+#### 新的初始化方式二
+```
+        vImageWatcher = ImageWatcher.Helper.with(this) // 一般来讲， ImageWatcher 需要占据全屏的位置
+                .setTranslucentStatus(!isTranslucentStatus ? Utils.calcStatusBarHeight(this) : 0) // 如果是透明状态栏，你需要给ImageWatcher标记 一个偏移值，以修正点击ImageView查看的启动动画的Y轴起点的不正确
+                .setErrorImageRes(R.mipmap.error_picture) // 配置error图标 如果不介意使用lib自带的图标，并不一定要调用这个API
+                .setOnPictureLongPressListener(this) // 长按图片的回调，你可以显示一个框继续提供一些复制，发送等功能
+                .setLoader(new ImageWatcher.Loader() {//调用show方法前，请先调用setLoader 给ImageWatcher提供加载图片的实现
+                    @Override
+                    public void load(Context context, String url, final ImageWatcher.LoadCallback lc) {
+                        Glide.with(context).asBitmap().load(url).into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                lc.onResourceReady(resource);
+                            }
+
+                            @Override
+                            public void onLoadStarted(Drawable placeholder) {
+                                lc.onLoadStarted(placeholder);
+                            }
+
+                            @Override
+                            public void onLoadFailed(Drawable errorDrawable) {
+                                lc.onLoadFailed(errorDrawable);
+                            }
+                        });
+                    }
+                })
+                .create();
+```
+
+由于一般图片查看会占据全屏
+持有activity引用后 调用`activity.getWindow().getDecorView()`拿到根FrameLayout
+即可动态插入ImageWatcher -> 使用 `ImageWatcher.Helper.with(activity)` 插入ImageWatcher
+非入侵式 不再需要在布局文件中加入&lt;ImageWatcher&gt;标签 减少布局嵌套
+
 
 这个时候你的所有准备工作已经完成
 ```
@@ -66,15 +114,16 @@ public void show(ImageView i, List<ImageView> imageGroupList, final List<String>
 ```
 
 最后只要调用 `vImageWatcher.show()` 方法就可以了
+
 可以具体看源码demo，这个项目是可以运行的，这个项目是可以运行的，这个项目是可以运行的
+
 
 ## 写在最后
 为什么要写这个Demo？
 
 *能够给在项目上有这个功能需求而又愿意试水此库的各位daLao节约一些开发时间
-*怕长时间不写代码，会慢慢忘记，于是反复练习
 *为了更好的视觉体验
+*希望能够给在项目上有这个功能需求而又愿意试水的各位daLao节约一些开发时间
+更推荐自己copy代码定制，有不好的地方，和更好的想法欢迎提出来
 
-ps:如果此裤对你提供了帮助，你的Star是对本宝最大的支持。  谢 /舔
-
-Q群274306954(可以找到我)
+如果这些代码对你提供了帮助，你的Star是对本宝最大的支持。

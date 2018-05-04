@@ -1,4 +1,4 @@
-package ch.ielse.demo.p02;
+package ch.ielse.demo.imagewatcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;

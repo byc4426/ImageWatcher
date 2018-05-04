@@ -11,8 +11,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -30,15 +28,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
-
 import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
- * QQ 517309507
  * <p>
  * 图片查看器，为各位追求用户体验的daLao提供更优质的服务<br/>
  * <b>它能够</b><br/>
@@ -52,8 +45,8 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
     static final float MIN_SCALE = 0.5f;
     static final float MAX_SCALE = 3.8f;
-    static int MAX_TRANSLATE_X;
-    static int MAX_TRANSLATE_Y;
+    private int maxTranslateX;
+    private int maxTranslateY;
 
     private static final int TOUCH_MODE_NONE = 0; // 无状态
     private static final int TOUCH_MODE_DOWN = 1; // 按下
@@ -64,7 +57,8 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
     private static final int TOUCH_MODE_LOCK = 6; // 缩放旋转锁定
     private static final int TOUCH_MODE_AUTO_FLING = 7; // 动画中
 
-    private TextView tCurrentIdx;
+    private final float tCurrentIdxTransY;
+    private final TextView tCurrentIdx;
     private ImageView iSource;
     private ImageView iOrigin;
 
@@ -73,7 +67,7 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
     private int mWidth, mHeight;
     private int mBackgroundColor = 0x00000000;
     private int mTouchMode = TOUCH_MODE_NONE;
-    private float mTouchSlop;
+    private final float mTouchSlop;
 
     private float mFingersDistance;
     private double mFingersAngle; // 相对于[东] point0作为起点;point1作为终点
@@ -88,11 +82,33 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
     private OnPictureLongPressListener mPictureLongPressListener;
     private ImagePagerAdapter adapter;
-    private ViewPager vPager;
+    private final ViewPager vPager;
     private List<ImageView> mImageGroupList;
     private List<String> mUrlList;
     private int initPosition;
     private int mPagerPositionOffsetPixels;
+
+    private Loader loader;
+
+    public void setLoader(Loader l) {
+        loader = l;
+    }
+
+    public interface Loader {
+        void load(Context context, String url, LoadCallback lc);
+    }
+
+    public interface LoadCallback {
+        void onResourceReady(Bitmap resource);
+
+        void onLoadStarted(Drawable placeholder);
+
+        void onLoadFailed(Drawable errorDrawable);
+    }
+
+    public ImageWatcher(Context context) {
+        this(context, null);
+    }
 
     public ImageWatcher(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -104,18 +120,27 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         setVisibility(View.INVISIBLE);
 
         addView(tCurrentIdx = new TextView(context));
+        LayoutParams lpCurrentIdx = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        lpCurrentIdx.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+        tCurrentIdx.setLayoutParams(lpCurrentIdx);
         tCurrentIdx.setTextColor(0xFFFFFFFF);
-        tCurrentIdx.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        tCurrentIdx.setTranslationY(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, displayMetrics) + 0.5f);
+        tCurrentIdxTransY = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, displayMetrics) + 0.5f;
+        tCurrentIdx.setTranslationY(tCurrentIdxTransY);
     }
 
     /**
+     * 调用show方法前，请先调用setLoader 给ImageWatcher提供加载图片的实现
+     *
      * @param i              被点击的ImageView
      * @param imageGroupList 被点击的ImageView的所在列表，加载图片时会提前展示列表中已经下载完成的thumb图片
      * @param urlList        被加载的图片url列表，数量必须大于等于 imageGroupList.size。 且顺序应当和imageGroupList保持一致
      */
     public void show(ImageView i, List<ImageView> imageGroupList, final List<String> urlList) {
+        if (loader == null) {
+            throw new NullPointerException("please invoke `setLoader` first [loader == null]");
+        }
+
         if (i == null || imageGroupList == null || urlList == null || imageGroupList.size() < 1 ||
                 urlList.size() < imageGroupList.size()) {
             String info = "i[" + i + "]";
@@ -125,7 +150,7 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         }
         initPosition = imageGroupList.indexOf(i);
         if (initPosition < 0) {
-            throw new IllegalArgumentException("error params initPosition " + initPosition);
+            throw new IllegalArgumentException("param ImageView i must be a member of the List <ImageView> imageGroupList!");
         }
 
         if (i.getDrawable() == null) return;
@@ -197,13 +222,16 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         } else if (mTouchMode == TOUCH_MODE_DRAG) {
             handleDragTouchResult();
         }
-        vPager.onTouchEvent(e);
+        try {
+            vPager.onTouchEvent(e);
+        } catch (Exception err) {
+        }
     }
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        final float moveX = e2.getX() - e1.getX();
-        final float moveY = e2.getY() - e1.getY();
+        final float moveX = (e1 != null) ? e2.getX() - e1.getX() : 0;
+        final float moveY = (e1 != null) ? e2.getY() - e1.getY() : 0;
         if (mTouchMode == TOUCH_MODE_DOWN) {
             if (Math.abs(moveX) > mTouchSlop || Math.abs(moveY) > mTouchSlop) {
                 ViewState vsCurrent = ViewState.write(iSource, ViewState.STATE_CURRENT);
@@ -340,9 +368,12 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
      */
     private void handleScaleRotateGesture(MotionEvent e2) {
         if (iSource == null) return;
+        final ViewState vsDefault = ViewState.read(iSource, ViewState.STATE_DEFAULT);
+        if (vsDefault == null) return;
         final ViewState vsTouchScaleRotate = ViewState.read(iSource, ViewState.STATE_TOUCH_SCALE_ROTATE);
         if (vsTouchScaleRotate == null) return;
 
+        if (e2.getPointerCount() < 2) return;
         final float deltaX = e2.getX(1) - e2.getX(0);
         final float deltaY = e2.getY(1) - e2.getY(0);
         double angle = Math.toDegrees(Math.atan(deltaX / deltaY));
@@ -379,14 +410,14 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         }
         float changedCenterX = mFingersCenterX - centerX;
         float changedCenterXValue = vsTouchScaleRotate.translationX - changedCenterX;
-        if (changedCenterXValue > MAX_TRANSLATE_X) changedCenterXValue = MAX_TRANSLATE_X;
-        else if (changedCenterXValue < -MAX_TRANSLATE_X) changedCenterXValue = -MAX_TRANSLATE_X;
+        if (changedCenterXValue > maxTranslateX) changedCenterXValue = maxTranslateX;
+        else if (changedCenterXValue < -maxTranslateX) changedCenterXValue = -maxTranslateX;
         iSource.setTranslationX(changedCenterXValue);
 
         float changedCenterY = mFingersCenterY - centerY;
         float changedCenterYValue = vsTouchScaleRotate.translationY - changedCenterY;
-        if (changedCenterYValue > MAX_TRANSLATE_Y) changedCenterYValue = MAX_TRANSLATE_Y;
-        else if (changedCenterYValue < -MAX_TRANSLATE_Y) changedCenterYValue = -MAX_TRANSLATE_Y;
+        if (changedCenterYValue > maxTranslateY) changedCenterYValue = maxTranslateY;
+        else if (changedCenterYValue < -maxTranslateY) changedCenterYValue = -maxTranslateY;
         iSource.setTranslationY(changedCenterYValue);
     }
 
@@ -666,6 +697,7 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
             boolean isFindEnterImagePicture = false;
 
             ViewState.write(imageView, ViewState.STATE_ORIGIN).alpha(0).scaleXBy(1.5f).scaleYBy(1.5f);
+
             if (pos < mImageGroupList.size()) {
                 ImageView originRef = mImageGroupList.get(pos);
                 if (pos == initPosition && !hasPlayBeginAnimation) {
@@ -703,14 +735,11 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
             final boolean isPlayEnterAnimation = isFindEnterImagePicture;
             // loadHighDefinitionPicture
-            Glide.with(imageView.getContext()).asBitmap().load(mUrlList.get(pos)).into(new SimpleTarget<Bitmap>() {
-                @Override
-                public void onLoadStarted(Drawable placeholder) {
-                    notifyItemChangedState(pos, true, false);
-                }
+            ViewState.clear(imageView, ViewState.STATE_DEFAULT);
 
+            loader.load(imageView.getContext(), mUrlList.get(pos), new LoadCallback() {
                 @Override
-                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                public void onResourceReady(Bitmap resource) {
                     final int sourceDefaultWidth, sourceDefaultHeight, sourceDefaultTranslateX, sourceDefaultTranslateY;
                     int resourceImageWidth = resource.getWidth();
                     int resourceImageHeight = resource.getHeight();
@@ -739,6 +768,17 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
                         imageView.setAlpha(0f);
                         imageView.animate().alpha(1).start();
                     }
+                }
+
+                @Override
+                public void onLoadStarted(Drawable placeholder) {
+                    notifyItemChangedState(pos, true, false);
+                }
+
+                @Override
+                public void onLoadFailed(Drawable errorDrawable) {
+                    notifyItemChangedState(pos, false, imageView.getDrawable() == null);
+
                 }
             });
 
@@ -815,6 +855,7 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
     public void setTranslucentStatus(int statusBarHeight) {
         mStatusBarHeight = statusBarHeight;
+        tCurrentIdx.setTranslationY(tCurrentIdxTransY - statusBarHeight);
     }
 
     public void setErrorImageRes(int resErrorImage) {
@@ -841,8 +882,8 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         super.onSizeChanged(w, h, oldw, oldh);
         mWidth = w;
         mHeight = h;
-        MAX_TRANSLATE_X = mWidth / 2;
-        MAX_TRANSLATE_Y = mHeight / 2;
+        maxTranslateX = mWidth / 2;
+        maxTranslateY = mHeight / 2;
     }
 
     @Override
@@ -922,5 +963,59 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
     public void setOnPictureLongPressListener(OnPictureLongPressListener listener) {
         mPictureLongPressListener = listener;
+    }
+
+    public static class Helper {
+        private static final int VIEW_IMAGE_WATCHER_ID = R.id.view_image_watcher;
+        private final ViewGroup activityDecorView;
+        private final ImageWatcher mImageWatcher;
+
+        private Helper(Activity activity) {
+            mImageWatcher = new ImageWatcher(activity);
+            mImageWatcher.setId(VIEW_IMAGE_WATCHER_ID);
+            activityDecorView = (ViewGroup) activity.getWindow().getDecorView();
+        }
+
+        public static Helper with(Activity activity) {
+            return new Helper(activity);
+        }
+
+        public Helper setLoader(Loader l) {
+            mImageWatcher.setLoader(l);
+            return this;
+        }
+
+        public Helper setTranslucentStatus(int statusBarHeight) {
+            mImageWatcher.mStatusBarHeight = statusBarHeight;
+            return this;
+        }
+
+        public Helper setErrorImageRes(int resErrorImage) {
+            mImageWatcher.mErrorImageRes = resErrorImage;
+            return this;
+        }
+
+        public Helper setOnPictureLongPressListener(OnPictureLongPressListener listener) {
+            mImageWatcher.setOnPictureLongPressListener(listener);
+            return this;
+        }
+
+        public ImageWatcher create() {
+            removeExistingOverlayInView(activityDecorView);
+            activityDecorView.addView(mImageWatcher);
+            return mImageWatcher;
+        }
+
+        void removeExistingOverlayInView(ViewGroup parent) {
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                View child = parent.getChildAt(i);
+                if (child.getId() == VIEW_IMAGE_WATCHER_ID) {
+                    parent.removeView(child);
+                }
+                if (child instanceof ViewGroup) {
+                    removeExistingOverlayInView((ViewGroup) child);
+                }
+            }
+        }
     }
 }

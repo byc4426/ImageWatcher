@@ -1,4 +1,4 @@
-package ch.ielse.demo.p02;
+package ch.ielse.demo.imagewatcher;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,7 +13,6 @@ import android.util.TypedValue;
 import android.view.View;
 
 /**
- * QQ 517309507
  * 参考 http://www.jianshu.com/p/e742df6f59e2
  */
 public class SpaceItemDecoration extends RecyclerView.ItemDecoration {

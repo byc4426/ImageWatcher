@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.view.View;
 
 /**
- * QQ 517309507 <br/>
  * ViewState包含记录了一个View的瞬时UI状态<br/>
  * 并且提供了给View新增状态，抓取View的当前状态，复制View的状态，将View还原至该状态等便捷方法
  */
@@ -54,6 +53,11 @@ public class ViewState {
     static ViewState read(View view, int tag) {
         if (view == null) return null;
         return view.getTag(tag) != null ? (ViewState) view.getTag(tag) : null;
+    }
+
+    static void clear(View view, int tag) {
+        if (view == null) return;
+        view.setTag(tag, null);
     }
 
     static ViewState copy(ViewState mir, int tag) {
