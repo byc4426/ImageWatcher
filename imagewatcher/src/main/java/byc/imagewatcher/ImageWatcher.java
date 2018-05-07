@@ -1,4 +1,4 @@
-package ch.ielse.view.imagewatcher;
+package byc.imagewatcher;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -30,6 +30,8 @@ import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+
+import byc.imagewatcher.view.imagewatcher.R;
 
 /**
  * <p>

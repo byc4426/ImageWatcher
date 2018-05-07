@@ -1,8 +1,10 @@
-package ch.ielse.view.imagewatcher;
+package byc.imagewatcher;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.view.View;
+
+import byc.imagewatcher.view.imagewatcher.R;
 
 /**
  * ViewState包含记录了一个View的瞬时UI状态<br/>

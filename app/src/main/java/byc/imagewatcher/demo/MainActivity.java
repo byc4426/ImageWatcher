@@ -1,4 +1,4 @@
-package ch.ielse.demo.imagewatcher;
+package byc.imagewatcher.demo;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,7 +21,7 @@ import com.bumptech.glide.request.transition.Transition;
 
 import java.util.List;
 
-import ch.ielse.view.imagewatcher.ImageWatcher;
+import byc.imagewatcher.ImageWatcher;
 
 
 public class MainActivity extends Activity implements MessagePicturesLayout.Callback, ImageWatcher.OnPictureLongPressListener {

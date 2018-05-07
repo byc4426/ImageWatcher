@@ -17,7 +17,7 @@
 
 在module的gradle
 ```
-compile 'ch.ielse:imagewatcher:1.0.3'
+    implementation 'byc.imagewatcher:imagewatcher:1.0.0'
 ```
 
 #### 方法一
@@ -30,7 +30,7 @@ compile 'ch.ielse:imagewatcher:1.0.3'
 
     <!-- some layout here -->
 
-    <ch.ielse.view.imagewatcher.ImageWatcher
+    <byc.imagewatcher.ImageWatcher
         android:id="@+id/v_image_watcher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

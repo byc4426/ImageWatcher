@@ -1,4 +1,4 @@
-package ch.ielse.demo.imagewatcher;
+package byc.imagewatcher.demo;
 
 import android.content.Context;
 import android.util.AttributeSet;

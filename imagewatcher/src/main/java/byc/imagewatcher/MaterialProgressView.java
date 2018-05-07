@@ -1,4 +1,4 @@
-package ch.ielse.view.imagewatcher;
+package byc.imagewatcher;
 
 import android.content.Context;
 import android.content.res.Resources;
