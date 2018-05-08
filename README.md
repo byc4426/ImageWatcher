@@ -6,10 +6,10 @@
 *支持多图查看，快速翻页，双击放大，单击退出，双手缩放旋转图片
 *下拽退出查看图片的操作，以及效果是本View的最大卖点(仿微信)
 
-![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/111.gif)
-![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/222.gif)
-![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/333.gif)
-![image](https://github.com/byc4426/ImageWatcher/tree/master/previews/444.gif)
+![image](https://github.com/byc4426/ImageWatcher/blob/master/previews/111.gif)
+![image](https://github.com/byc4426/ImageWatcher/blob/master/previews/222.gif)
+![image](https://github.com/byc4426/ImageWatcher/blob/master/previews/333.gif)
+![image](https://github.com/byc4426/ImageWatcher/blob/master/previews/444.gif)
 
 
 
@@ -122,8 +122,11 @@ public void show(ImageView i, List<ImageView> imageGroupList, final List<String>
 为什么要写这个Demo？
 
 *能够给在项目上有这个功能需求而又愿意试水此库的各位daLao节约一些开发时间
+
 *为了更好的视觉体验
+
 *希望能够给在项目上有这个功能需求而又愿意试水的各位daLao节约一些开发时间
+
 更推荐自己copy代码定制，有不好的地方，和更好的想法欢迎提出来
 
 如果这些代码对你提供了帮助，你的Star是对本宝最大的支持。
