@@ -17,7 +17,7 @@
 
 在module的gradle
 ```
-    implementation 'com.byc:ImageWatcher:1.0.2'
+    implementation 'com.byc:ImageWatcher:1.0.3'
 ```
 
 #### 方法一

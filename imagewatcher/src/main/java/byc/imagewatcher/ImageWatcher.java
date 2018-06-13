@@ -343,7 +343,10 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         }
 
         if (mTouchMode == TOUCH_MODE_SLIDE) {
-            vPager.onTouchEvent(e2);
+            try {
+                vPager.onTouchEvent(e2);
+            }catch (IllegalArgumentException e){
+            }
         } else if (mTouchMode == TOUCH_MODE_SCALE_ROTATE) {
             handleScaleRotateGesture(e2);
         } else if (mTouchMode == TOUCH_MODE_EXIT) {
