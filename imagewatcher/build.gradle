@@ -26,27 +26,18 @@ android {
 
 }
 
-allprojects {
-    tasks.withType(Javadoc) {
-        options{
-            encoding "UTF-8"
-            charSet 'UTF-8'
-            links "http://docs.oracle.com/javase/7/docs/api"
-        }
-    }
-}
 
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
 }
 
 
 publish {
     userOrg = 'byc295'//bintray.com用户名
-    groupId = 'byc.imagewatcher'//jcenter上的路径
-    artifactId = 'imagewatcher'//项目名称
-    publishVersion = '1.0.0'//版本号
+    groupId = 'com.byc'//jcenter上的路径
+    artifactId = 'ImageWatcher'//项目名称
+    publishVersion = '1.0.2'//版本号
     desc = 'Oh hi, this is a nice ImageWatcher'//描述，不重要
     website = 'https://github.com/byc4426/ImageWatcher'//网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
 }

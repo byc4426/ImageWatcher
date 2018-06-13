@@ -13,6 +13,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -59,8 +62,9 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
     private static final int TOUCH_MODE_LOCK = 6; // 缩放旋转锁定
     private static final int TOUCH_MODE_AUTO_FLING = 7; // 动画中
 
-    private final float tCurrentIdxTransY;
-    private final TextView tCurrentIdx;
+    private float tCurrentIdxTransY;
+    private TextView tCurrentIdx;
+    private ShapeHintView shapeHintView;
     private ImageView iSource;
     private ImageView iOrigin;
 
@@ -89,6 +93,9 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
     private List<String> mUrlList;
     private int initPosition;
     private int mPagerPositionOffsetPixels;
+    private int hintMode = 1;//指示器样式   1-白点、2-文字
+    private int focusColor = Color.parseColor("#ffffffff");
+    private int normalColor = Color.parseColor("#88ffffff");
 
     private Loader loader;
 
@@ -120,15 +127,6 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         addView(vPager = new ViewPager(getContext()));
         vPager.addOnPageChangeListener(this);
         setVisibility(View.INVISIBLE);
-
-        addView(tCurrentIdx = new TextView(context));
-        LayoutParams lpCurrentIdx = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lpCurrentIdx.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-        tCurrentIdx.setLayoutParams(lpCurrentIdx);
-        tCurrentIdx.setTextColor(0xFFFFFFFF);
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        tCurrentIdxTransY = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, displayMetrics) + 0.5f;
-        tCurrentIdx.setTranslationY(tCurrentIdxTransY);
     }
 
     /**
@@ -166,10 +164,69 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
         iOrigin = null;
         iSource = null;
 
+        LayoutParams lpCurrentIdx = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        lpCurrentIdx.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        tCurrentIdxTransY = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -30, displayMetrics) + 0.5f;
+        switch (hintMode) {
+            case POINT://白点
+                if (shapeHintView != null) {
+                    removeView(shapeHintView);
+                    shapeHintView = null;
+                }
+                addView(shapeHintView = new ShapeHintView(getContext(), mUrlList.size(), focusColor, normalColor));
+                shapeHintView.setLayoutParams(lpCurrentIdx);
+                shapeHintView.setTranslationY(tCurrentIdxTransY);
+                break;
+            case TEXT://文字
+                if (tCurrentIdx != null) {
+                    removeView(tCurrentIdx);
+                    tCurrentIdx = null;
+                }
+                addView(tCurrentIdx = new TextView(getContext()));
+                tCurrentIdx.setLayoutParams(lpCurrentIdx);
+                tCurrentIdx.setTextColor(0xFFFFFFFF);
+                tCurrentIdx.setTranslationY(tCurrentIdxTransY);
+                break;
+            default://白点
+                if (shapeHintView != null) {
+                    removeView(shapeHintView);
+                    shapeHintView = null;
+                }
+                addView(shapeHintView = new ShapeHintView(getContext(), mUrlList.size(), focusColor, normalColor));
+                shapeHintView.setLayoutParams(lpCurrentIdx);
+                shapeHintView.setTranslationY(tCurrentIdxTransY);
+                break;
+        }
+
         ImageWatcher.this.setVisibility(View.VISIBLE);
         vPager.setAdapter(adapter = new ImagePagerAdapter());
         vPager.setCurrentItem(initPosition);
         refreshCurrentIdx(initPosition);
+    }
+
+    public final static int POINT = 1;
+    public final static int TEXT = 2;
+
+
+    /**
+     * 设置指示器样式
+     *
+     * @param mode 样式：白点/文字
+     */
+    public void setHintMode(int mode) {
+        hintMode = mode;
+    }
+
+    /**
+     * 设置指示器（点）颜色
+     *
+     * @param focusColor
+     * @param normalColor
+     */
+    public void setHintColor(int focusColor, int normalColor) {
+        this.focusColor = focusColor;
+        this.normalColor = normalColor;
     }
 
     @Override
@@ -857,7 +914,7 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
     public void setTranslucentStatus(int statusBarHeight) {
         mStatusBarHeight = statusBarHeight;
-        tCurrentIdx.setTranslationY(tCurrentIdxTransY - statusBarHeight);
+//        tCurrentIdx.setTranslationY(tCurrentIdxTransY - statusBarHeight);
     }
 
     public void setErrorImageRes(int resErrorImage) {
@@ -866,10 +923,25 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
     private void refreshCurrentIdx(int position) {
         if (mUrlList.size() > 1) {
-            tCurrentIdx.setVisibility(View.VISIBLE);
-            tCurrentIdx.setText((position + 1) + " / " + mUrlList.size());
+            if (shapeHintView != null) {
+                shapeHintView.setVisibility(View.VISIBLE);
+                shapeHintView.setCurrent(position);
+            }
+            if (tCurrentIdx != null) {
+                tCurrentIdx.setVisibility(View.VISIBLE);
+                String str = (position + 1) + " / " + mUrlList.size();
+                SpannableString spannableString = new SpannableString(str);
+                spannableString.setSpan(new ForegroundColorSpan(focusColor), 0, str.indexOf("/"), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new ForegroundColorSpan(normalColor), str.indexOf("/"), str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                tCurrentIdx.setText(spannableString);
+            }
         } else {
-            tCurrentIdx.setVisibility(View.GONE);
+            if (tCurrentIdx != null) {
+                tCurrentIdx.setVisibility(View.GONE);
+            }
+            if (shapeHintView != null) {
+                shapeHintView.setVisibility(GONE);
+            }
         }
     }
 
@@ -994,6 +1066,17 @@ public class ImageWatcher extends FrameLayout implements GestureDetector.OnGestu
 
         public Helper setErrorImageRes(int resErrorImage) {
             mImageWatcher.mErrorImageRes = resErrorImage;
+            return this;
+        }
+
+        public Helper setHintMode(int hintMode) {
+            mImageWatcher.hintMode = hintMode;
+            return this;
+        }
+
+        public Helper setHintColor(int focusColor, int normalColor) {
+            mImageWatcher.focusColor = focusColor;
+            mImageWatcher.normalColor = normalColor;
             return this;
         }
 
