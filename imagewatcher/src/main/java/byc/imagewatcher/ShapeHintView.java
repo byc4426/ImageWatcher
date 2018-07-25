@@ -35,6 +35,16 @@ public class ShapeHintView extends LinearLayout {
         initView(length);
     }
 
+    public void setDotColor(int focusColor, int normalColor) {
+        this.focusColor = focusColor;
+        this.normalColor = normalColor;
+        initView(length);
+    }
+
+    public void setLength(int length) {
+        initView(length);
+    }
+
     public void initView(int length) {
         removeAllViews();
         lastPosition = 0;
