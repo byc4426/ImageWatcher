@@ -2,13 +2,13 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
     resourcePrefix "imagewatcher"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -29,7 +29,7 @@ android {
 
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
 }
 
 
@@ -37,7 +37,7 @@ publish {
     userOrg = 'byc295'//bintray.com用户名
     groupId = 'com.byc'//jcenter上的路径
     artifactId = 'ImageWatcher'//项目名称
-    publishVersion = '1.0.3'//版本号
+    publishVersion = '1.1.0'//版本号
     desc = 'Oh hi, this is a nice ImageWatcher'//描述，不重要
     website = 'https://github.com/byc4426/ImageWatcher'//网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
 }

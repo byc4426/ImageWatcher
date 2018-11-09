@@ -8,8 +8,9 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Animatable;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -24,23 +25,22 @@ import java.util.ArrayList;
 /**
  * PtrFrameLayout 源码微调
  */
-public class MaterialProgressView extends View {
+public class ProgressView extends View {
 
-    private MaterialProgressDrawable mDrawable;
+    private AnimationDrawable mDrawable;
     private float mScale = 1f;
 
-    public MaterialProgressView(Context context) {
-        super(context);
-        initView();
+    public ProgressView(Context context) {
+        this(context, null);
     }
 
-    public MaterialProgressView(Context context, AttributeSet attrs) {
+    public ProgressView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initView();
+        initView(new MaterialProgressDrawable(getContext(), this));
     }
 
-    private void initView() {
-        mDrawable = new MaterialProgressDrawable(getContext(), this);
+    private void initView(AnimationDrawable d) {
+        mDrawable = d;
         mDrawable.setAlpha(255);
         mDrawable.setCallback(this);
     }
@@ -52,6 +52,12 @@ public class MaterialProgressView extends View {
         } else {
             super.invalidateDrawable(dr);
         }
+    }
+
+    @Override
+    public void scheduleDrawable(@NonNull Drawable who, @NonNull Runnable what, long when) {
+        super.scheduleDrawable(who, what, when);
+
     }
 
     public void start() {
@@ -86,7 +92,7 @@ public class MaterialProgressView extends View {
         canvas.restoreToCount(saveCount);
     }
 
-    public static class MaterialProgressDrawable extends Drawable implements Animatable {
+    static class MaterialProgressDrawable extends AnimationDrawable {
         private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
         private static final Interpolator END_CURVE_INTERPOLATOR = new EndCurveInterpolator();
         private static final Interpolator START_CURVE_INTERPOLATOR = new StartCurveInterpolator();

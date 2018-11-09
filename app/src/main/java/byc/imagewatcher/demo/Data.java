@@ -1,5 +1,7 @@
 package byc.imagewatcher.demo;
 
+import android.net.Uri;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,8 +12,8 @@ public class Data {
     private String nickname;
     private String createTime;
     private String content;
-    private List<String> pictureList;
-    private List<String> pictureThumbList;
+    private List<Uri> pictureList;
+    private List<Uri> pictureThumbList;
 
     public static List<Data> get() {
         List<Data> dataList = new ArrayList<>();
@@ -22,32 +24,34 @@ public class Data {
         data1.createTime = "昨天 11:21";
         data1.content = "开司还是那么帅";
         data1.pictureList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/06/1483664940_9893.jpg",
-                "http://img.my.csdn.net/uploads/201701/06/1483664940_3308.jpg",
-                "http://img.my.csdn.net/uploads/201701/06/1483664927_3920.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483664926_8360.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483664926_6184.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483664925_8382.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483664925_2087.jpg",
-                "http://img.my.csdn.net/uploads/201701/06/1483664777_5730.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483664741_1378.jpg",
-                "http://img.my.csdn.net/uploads/201701/06/1483671689_9534.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483671689_2126.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483671703_7890.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664940_9893.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664940_3308.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664927_3920.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664926_8360.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664926_6184.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664925_8382.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664925_2087.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664777_5730.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664741_1378.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483671689_9534.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483671689_2126.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483671703_7890.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201707/27/1501118577_9169.jpg") // 超出屏幕宽度大尺寸图测试
         );
         data1.pictureThumbList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/17/1484647899_2806.jpg",
-                "http://img.my.csdn.net/uploads/201701/17/1484647798_4500.jpg",
-                "http://img.my.csdn.net/uploads/201701/17/1484647897_1367.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484650736_2101.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647701_9893.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484650700_2514.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647930_5139.jpg",
-                "http://img.my.csdn.net/uploads/201701/17/1484647929_8108.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647897_1978.jpg",
-                "http://img.my.csdn.net/uploads/201701/17/1484647898_4474.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647930_7735.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647929_9591.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647899_2806.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647798_4500.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647897_1367.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484650736_2101.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647701_9893.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484650700_2514.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647930_5139.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647929_8108.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647897_1978.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647898_4474.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647930_7735.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647929_9591.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201707/27/1501118720_9504.jpg") // 超出屏幕宽度大尺寸图测试
         );
 
 
@@ -57,10 +61,10 @@ public class Data {
         data2.createTime = "昨天 09:59";
         data2.content = "唐僧还是厉害啊。为什么？有宝马";
         data2.pictureList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/06/1483664741_7475.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483664741_7475.png")
         );
         data2.pictureThumbList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/17/1484647799_1689.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647799_1689.png")
         );
 
         Data data3 = new Data();
@@ -69,16 +73,16 @@ public class Data {
         data3.createTime = "昨天 08:12";
         data3.content = "各种眼神";
         data3.pictureList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/06/1483671690_1970.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483671690_6902.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483671702_6499.png",
-                "http://img.my.csdn.net/uploads/201701/06/1483671702_2352.jpg"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483671690_1970.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483671690_6902.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483671702_6499.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/06/1483671702_2352.jpg")
         );
         data3.pictureThumbList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/17/1484650701_4150.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484650719_9275.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647702_8420.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647930_4474.jpg"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484650701_4150.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484650719_9275.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647702_8420.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647930_4474.jpg")
         );
 
         Data data4 = new Data();
@@ -87,14 +91,14 @@ public class Data {
         data4.createTime = "昨天 06:00";
         data4.content = "人与人间的信任，就像是纸片，一旦破损，就不会再回到原来的样子。";
         data4.pictureList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/13/1484296303_7395.png",
-                "http://img.my.csdn.net/uploads/201701/13/1484296122_9613.jpg",
-                "http://img.my.csdn.net/uploads/201701/13/1484296303_6984.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296303_7395.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296122_9613.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296303_6984.png")
         );
         data4.pictureThumbList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/17/1484647817_3557.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647818_9583.jpg",
-                "http://img.my.csdn.net/uploads/201701/17/1484647817_7305.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647817_3557.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647818_9583.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647817_7305.png")
         );
 
         Data data5 = new Data();
@@ -103,12 +107,12 @@ public class Data {
         data5.createTime = "前天 14:61";
         data5.content = "雪.触之即化..愿永久飘零";
         data5.pictureList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/13/1484296288_3031.png",
-                "http://img.my.csdn.net/uploads/201701/13/1484296303_5044.jpg"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296288_3031.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296303_5044.jpg")
         );
         data5.pictureThumbList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/17/1484647278_8869.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647702_1117.jpg"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647278_8869.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647702_1117.jpg")
         );
 
         Data data6 = new Data();
@@ -117,26 +121,41 @@ public class Data {
         data6.createTime = "圣诞节";
         data6.content = "颜宇扬的期末总结\n1、有本事冲我来，别再家长会上吓唬我爸\n2、期末考试成绩出来了，我觉得我妈生二胎是非常明智的选择\n3、这场考试对于我的意义就是知道了班上到底有多少人\n4、期末考试不给老师们露一手，他们还真以为自己教的好";
         data6.pictureList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/13/1484296287_2190.png",
-                "http://img.my.csdn.net/uploads/201701/13/1484296286_7908.png",
-                "http://img.my.csdn.net/uploads/201701/13/1484296286_7013.png",
-                "http://img.my.csdn.net/uploads/201701/13/1484296286_6401.jpg",
-                "http://img.my.csdn.net/uploads/201701/13/1484296106_5671.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296287_2190.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296286_7908.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296286_7013.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296286_6401.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/13/1484296106_5671.png")
         );
         data6.pictureThumbList = Arrays.asList(
-                "http://img.my.csdn.net/uploads/201701/17/1484647898_9300.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647278_2143.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647816_4929.png",
-                "http://img.my.csdn.net/uploads/201701/17/1484647817_5319.jpg",
-                "http://img.my.csdn.net/uploads/201701/17/1484647818_3369.png"
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647898_9300.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647278_2143.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647816_4929.png"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647817_5319.jpg"),
+                Uri.parse("http://img.my.csdn.net/uploads/201701/17/1484647818_3369.png")
         );
 
-        dataList.add(data1);
-        dataList.add(data2);
-        dataList.add(data3);
-        dataList.add(data4);
-        dataList.add(data5);
-        dataList.add(data6);
+
+        if (System.currentTimeMillis() % 3 == 0) {
+            dataList.add(data1);
+            dataList.add(data2);
+            dataList.add(data3);
+            dataList.add(data4);
+            dataList.add(data6);
+        } else if (System.currentTimeMillis() % 3 == 1) {
+            dataList.add(data5);
+            dataList.add(data6);
+            dataList.add(data2);
+            dataList.add(data4);
+            dataList.add(data3);
+        } else {
+            dataList.add(data1);
+            dataList.add(data3);
+            dataList.add(data4);
+            dataList.add(data5);
+            dataList.add(data6);
+        }
+
         return dataList;
     }
 
@@ -172,19 +191,19 @@ public class Data {
         this.content = content;
     }
 
-    public List<String> getPictureList() {
+    public List<Uri> getPictureList() {
         return pictureList;
     }
 
-    public void setPictureList(List<String> pictureList) {
+    public void setPictureList(List<Uri> pictureList) {
         this.pictureList = pictureList;
     }
 
-    public List<String> getPictureThumbList() {
+    public List<Uri> getPictureThumbList() {
         return pictureThumbList;
     }
 
-    public void setPictureThumbList(List<String> pictureThumbList) {
+    public void setPictureThumbList(List<Uri> pictureThumbList) {
         this.pictureThumbList = pictureThumbList;
     }
 }

@@ -17,7 +17,7 @@
 
 在module的gradle
 ```
-    implementation 'com.byc:ImageWatcher:1.0.3'
+    implementation 'com.byc:ImageWatcher:1.1.0'
 ```
 
 #### 方法一
@@ -40,69 +40,61 @@
 * 然后在Activity onCreate里面简单的初始化一下
 
 ```
-        vImageWatcher = (ImageWatcher) findViewById(R.id.v_image_watcher); // 一般来讲， ImageWatcher 需要占据全屏的位置
-        vImageWatcher.setTranslucentStatus(!isTranslucentStatus ? Utils.calcStatusBarHeight(this) : 0);  // 如果是透明状态栏，你需要给ImageWatcher标记 一个偏移值，以修正点击ImageView查看的启动动画的Y轴起点的不正确
-        vImageWatcher.setErrorImageRes(R.mipmap.error_picture);  // 配置error图标 如果不介意使用lib自带的图标，并不一定要调用这个API
-        vImageWatcher.setHintMode(ImageWatcher.TEXT);//设置指示器（默认小白点）
-        vImageWatcher.setOnPictureLongPressListener(this); // 长按图片的回调，你可以显示一个框继续提供一些复制，发送等功能
-        vImageWatcher.setLoader(new ImageWatcher.Loader() {//调用show方法前，请先调用setLoader 给ImageWatcher提供加载图片的实现
+        // 一般来讲， ImageWatcher 需要占据全屏的位置
+        vImageWatcher = (ImageWatcher) findViewById(R.id.v_image_watcher);
+        // 如果不是透明状态栏，你需要给ImageWatcher标记 一个偏移值，以修正点击ImageView查看的启动动画的Y轴起点的不正确
+        vImageWatcher.setTranslucentStatus(!isTranslucentStatus ? Utils.calcStatusBarHeight(this) : 0);
+        // 配置error图标 如果不介意使用lib自带的图标，并不一定要调用这个API
+        vImageWatcher.setErrorImageRes(R.mipmap.error_picture);
+        // 长按图片的回调，你可以显示一个框继续提供一些复制，发送等功能
+        vImageWatcher.setOnPictureLongPressListener(this);
+        vImageWatcher.setLoader(new GlideSimpleLoader());
+        vImageWatcher.setOnStateChangedListener(new ImageWatcher.OnStateChangedListener() {
             @Override
-            public void load(Context context, String url, final ImageWatcher.LoadCallback lc) {
-                Glide.with(context).asBitmap().load(url).into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                        lc.onResourceReady(resource);
-                    }
+            public void onStateChangeUpdate(ImageWatcher imageWatcher, ImageView clicked, int position, Uri uri, float animatedValue, int actionTag) {
+                Log.e("IW", "onStateChangeUpdate [" + position + "][" + uri + "][" + animatedValue + "][" + actionTag + "]");
+            }
 
-                    @Override
-                    public void onLoadStarted(Drawable placeholder) {
-                        lc.onLoadStarted(placeholder);
-                    }
-
-                    @Override
-                    public void onLoadFailed(Drawable errorDrawable) {
-                        lc.onLoadFailed(errorDrawable);
-                    }
-                });
+            @Override
+            public void onStateChanged(ImageWatcher imageWatcher, int position, Uri uri, int actionTag) {
+                if (actionTag == ImageWatcher.STATE_ENTER_DISPLAYING) {
+                    Toast.makeText(getApplicationContext(), "点击了图片 [" + position + "]" + uri + "", Toast.LENGTH_SHORT).show();
+                } else if (actionTag == ImageWatcher.STATE_EXIT_HIDING) {
+                    Toast.makeText(getApplicationContext(), "退出了查看大图", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 ```
 
 #### 新的初始化方式二
 ```
-        vImageWatcher = ImageWatcher.Helper.with(this) // 一般来讲， ImageWatcher 需要占据全屏的位置
-                .setTranslucentStatus(!isTranslucentStatus ? Utils.calcStatusBarHeight(this) : 0) // 如果是透明状态栏，你需要给ImageWatcher标记 一个偏移值，以修正点击ImageView查看的启动动画的Y轴起点的不正确
+        iwHelper = ImageWatcherHelper.with(this, new GlideSimpleLoader()) // 一般来讲， ImageWatcher 需要占据全屏的位置
+                .setTranslucentStatus(!isTranslucentStatus ? Utils.calcStatusBarHeight(this) : 0) // 如果不是透明状态栏，你需要给ImageWatcher标记 一个偏移值，以修正点击ImageView查看的启动动画的Y轴起点的不正确
                 .setErrorImageRes(R.mipmap.error_picture) // 配置error图标 如果不介意使用lib自带的图标，并不一定要调用这个API
-                .setHintMode(ImageWatcher.POINT)//设置指示器（默认小白点）
-                .setHintColor(getResources().getColor(R.color.red), getResources().getColor(R.color.white))//设置指示器颜色
-                .setOnPictureLongPressListener(this) // 长按图片的回调，你可以显示一个框继续提供一些复制，发送等功能
-                .setLoader(new ImageWatcher.Loader() {//调用show方法前，请先调用setLoader 给ImageWatcher提供加载图片的实现
+                .setOnPictureLongPressListener(this)//长安监听，并不一定要调用这个API
+                .setOnStateChangedListener(new ImageWatcher.OnStateChangedListener() {
                     @Override
-                    public void load(Context context, String url, final ImageWatcher.LoadCallback lc) {
-                        Glide.with(context).asBitmap().load(url).into(new SimpleTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                                lc.onResourceReady(resource);
-                            }
+                    public void onStateChangeUpdate(ImageWatcher imageWatcher, ImageView clicked, int position, Uri uri, float animatedValue, int actionTag) {
+                        Log.e("IW", "onStateChangeUpdate [" + position + "][" + uri + "][" + animatedValue + "][" + actionTag + "]");
+                    }
 
-                            @Override
-                            public void onLoadStarted(Drawable placeholder) {
-                                lc.onLoadStarted(placeholder);
-                            }
-
-                            @Override
-                            public void onLoadFailed(Drawable errorDrawable) {
-                                lc.onLoadFailed(errorDrawable);
-                            }
-                        });
+                    @Override
+                    public void onStateChanged(ImageWatcher imageWatcher, int position, Uri uri, int actionTag) {
+                        if (actionTag == ImageWatcher.STATE_ENTER_DISPLAYING) {
+                            Toast.makeText(getApplicationContext(), "点击了图片 [" + position + "]" + uri + "", Toast.LENGTH_SHORT).show();
+                        } else if (actionTag == ImageWatcher.STATE_EXIT_HIDING) {
+                            Toast.makeText(getApplicationContext(), "退出了查看大图", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 })
-                .create();
+                .setIndexProvider(new CustomDotIndexProvider())//自定义页码指示器（默认数字），并不一定要调用这个API
+                .setLoadingUIProvider(new CustomLoadingUIProvider()); // 自定义LoadingUI，并不一定要调用这个API
+
 ```
 
 由于一般图片查看会占据全屏
 持有activity引用后 调用`activity.getWindow().getDecorView()`拿到根FrameLayout
-即可动态插入ImageWatcher -> 使用 `ImageWatcher.Helper.with(activity)` 插入ImageWatcher
+即可动态插入ImageWatcher -> 使用
 非入侵式 不再需要在布局文件中加入&lt;ImageWatcher&gt;标签 减少布局嵌套
 
 
@@ -113,23 +105,37 @@
  * @param imageGroupList 被点击的ImageView的所在列表，加载图片时会提前展示列表中已经下载完成的thumb图片
  * @param urlList        被加载的图片url列表，数量必须大于等于 imageGroupList.size。 且顺序应当和imageGroupList保持一致
  */
-public void show(ImageView i, List<ImageView> imageGroupList, final List<String> urlList) { ... }
+ public void show(ImageView i, SparseArray<ImageView> imageGroupList, final List<Uri> urlList) { ... }
 ```
 
 最后只要调用 `vImageWatcher.show()` 方法就可以了
+```
+    //记得重写返回键哦
+    @Override
+    public void onBackPressed() {
+//        //方式一
+//        if (!vImageWatcher.handleBackPressed()) {
+//            super.onBackPressed();
+//        }
+        //方式二
+        if (!iwHelper.handleBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+```
 
-可以具体看源码demo，这个项目是可以运行的，这个项目是可以运行的，这个项目是可以运行的
+```
+初始化API简介
+name	                 description
+setLoader	             图片地址加载的实现者
+setTranslucentStatus	 当没有使用透明状态栏，传入状态栏的高度
+setErrorImageRes	     图片加载失败时显示的样子
+setOnPictureLongPressListener	长按回调
+setIndexProvider	     自定义页码UI
+setLoadingUIProvider	 自定义加载UI
+setOnStateChangedListener	开始显示和退出显示时的回调
+```
 
 
 ## 写在最后
-为什么要写这个Demo？
-
-*能够给在项目上有这个功能需求而又愿意试水此库的各位daLao节约一些开发时间
-
-*为了更好的视觉体验
-
-*希望能够给在项目上有这个功能需求而又愿意试水的各位daLao节约一些开发时间
-
-更推荐自己copy代码定制，有不好的地方，和更好的想法欢迎提出来
-
-如果这些代码对你提供了帮助，你的Star是对本宝最大的支持。
+----------------------------------------------------------------------------------------

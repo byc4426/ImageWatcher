@@ -10,25 +10,23 @@ import byc.imagewatcher.view.imagewatcher.R;
  * ViewState包含记录了一个View的瞬时UI状态<br/>
  * 并且提供了给View新增状态，抓取View的当前状态，复制View的状态，将View还原至该状态等便捷方法
  */
-public class ViewState {
+class ViewState {
     static final int STATE_ORIGIN = R.id.state_origin; // 缩略图初始
     static final int STATE_THUMB = R.id.state_thumb; // 缩略图居中
     static final int STATE_DEFAULT = R.id.state_default; // 高清图初始
     static final int STATE_CURRENT = R.id.state_current; // 当前状态
     static final int STATE_TEMP = R.id.state_temp; // 临时目标
     static final int STATE_DRAG = R.id.state_touch_drag; // 高清图拖拽起点
-    static final int STATE_TOUCH_DOWN = R.id.state_touch_down; // 高清图按下起点
-    static final int STATE_TOUCH_SCALE_ROTATE = R.id.state_touch_scale_rotate; // 高清图缩放旋转起点
+    static final int STATE_EXIT = R.id.state_exit; // 高清图退出起点
+    static final int STATE_TOUCH_SCALE = R.id.state_touch_scale; // 高清图缩放起点
 
     int mTag;
-
     int width;
     int height;
     float translationX;
     float translationY;
     float scaleX;
     float scaleY;
-    float rotation;
     float alpha;
 
     private ViewState(int tag) {
@@ -47,7 +45,6 @@ public class ViewState {
         vs.translationY = view.getTranslationY();
         vs.scaleX = view.getScaleX();
         vs.scaleY = view.getScaleY();
-        vs.rotation = view.getRotation();
         vs.alpha = view.getAlpha();
         return vs;
     }
@@ -70,7 +67,6 @@ public class ViewState {
         vs.translationY = mir.translationY;
         vs.scaleX = mir.scaleX;
         vs.scaleY = mir.scaleY;
-        vs.rotation = mir.rotation;
         vs.alpha = mir.alpha;
         return vs;
     }
@@ -82,7 +78,6 @@ public class ViewState {
             view.setTranslationY(viewState.translationY);
             view.setScaleX(viewState.scaleX);
             view.setScaleY(viewState.scaleY);
-            view.setRotation(viewState.rotation);
             view.setAlpha(viewState.alpha);
             if (view.getLayoutParams().width != viewState.width || view.getLayoutParams().height != viewState.height) {
                 view.getLayoutParams().width = viewState.width;
@@ -101,8 +96,9 @@ public class ViewState {
                 if (vsOrigin != null) vsCurrent.width(vsOrigin.width).height(vsOrigin.height);
             }
             final ViewState vsResult = read(view, tag);
+
             if (vsResult != null) {
-                animator = ValueAnimator.ofFloat(0, 1).setDuration(300);
+                animator = ValueAnimator.ofFloat(0, 1).setDuration(200);
                 animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
@@ -111,7 +107,6 @@ public class ViewState {
                         view.setTranslationY(vsCurrent.translationY + (vsResult.translationY - vsCurrent.translationY) * p);
                         view.setScaleX(vsCurrent.scaleX + (vsResult.scaleX - vsCurrent.scaleX) * p);
                         view.setScaleY(vsCurrent.scaleY + (vsResult.scaleY - vsCurrent.scaleY) * p);
-                        view.setRotation((vsCurrent.rotation + (vsResult.rotation - vsCurrent.rotation) * p) % 360);
                         view.setAlpha((vsCurrent.alpha + (vsResult.alpha - vsCurrent.alpha) * p));
                         if (vsCurrent.width != vsResult.width && vsCurrent.height != vsResult.height
                                 && vsResult.width != 0 && vsResult.height != 0) {
@@ -163,10 +158,6 @@ public class ViewState {
         return this;
     }
 
-    ViewState alpha(float alpha) {
-        this.alpha = alpha;
-        return this;
-    }
 
     ViewState width(int width) {
         this.width = width;
@@ -185,6 +176,11 @@ public class ViewState {
 
     ViewState translationY(float translationY) {
         this.translationY = translationY;
+        return this;
+    }
+
+    ViewState alpha(float alpha) {
+        this.alpha = alpha;
         return this;
     }
 }

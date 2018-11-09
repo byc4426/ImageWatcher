@@ -9,13 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-
 
 public class MessageAdapter extends RecyclerView.Adapter {
     private final List<Data> mDataList = new ArrayList<>();
@@ -37,6 +33,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
     }
 
+
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView iAvatar;
         TextView tNickname, tTime, tContent;
@@ -56,13 +53,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
         void refresh(int pos) {
             mData = mDataList.get(pos);
-            RequestOptions options = new RequestOptions();
-            options.placeholder(R.drawable.default_avatar);
-            options.centerCrop();
-            Glide.with(itemView.getContext()).load(mData.getAvatar())
-                    .apply(options)
-                    .transition(withCrossFade())
-                    .into(iAvatar);
+            Glide.with(itemView.getContext()).load(mData.getAvatar()).into(iAvatar);
             tNickname.setText(mData.getNickname());
             tTime.setText(mData.getCreateTime());
             tContent.setText(mData.getContent());

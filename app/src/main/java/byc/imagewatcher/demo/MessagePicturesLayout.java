@@ -1,9 +1,11 @@
 package byc.imagewatcher.demo;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -16,21 +18,20 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class MessagePicturesLayout extends FrameLayout implements View.OnClickListener {
 
     public static final int MAX_DISPLAY_COUNT = 9;
-    private final FrameLayout.LayoutParams lpChildImage = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    private final LayoutParams lpChildImage = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     private final int mSingleMaxSize;
     private final int mSpace;
     private final List<ImageView> iPictureList = new ArrayList<>();
-    private final List<ImageView> mVisiblePictureList = new ArrayList<>();
+    private final SparseArray<ImageView> mVisiblePictureList = new SparseArray<>();
     private final TextView tOverflowCount;
 
     private Callback mCallback;
     private boolean isInit;
-    private List<String> mDataList;
-    private List<String> mThumbDataList;
+    private List<Uri> mDataList;
+    private List<Uri> mThumbDataList;
 
     public MessagePicturesLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -57,7 +58,7 @@ public class MessagePicturesLayout extends FrameLayout implements View.OnClickLi
         addView(tOverflowCount);
     }
 
-    public void set(List<String> urlThumbList, List<String> urlList) {
+    public void set(List<Uri> urlThumbList, List<Uri> urlList) {
         mThumbDataList = urlThumbList;
         mDataList = urlList;
         if (isInit) {
@@ -66,11 +67,18 @@ public class MessagePicturesLayout extends FrameLayout implements View.OnClickLi
     }
 
     private void notifyDataChanged() {
-        final List<String> dataList = mThumbDataList;
-        final int urlListSize = dataList != null ? mThumbDataList.size() : 0;
+        final List<Uri> thumbList = mThumbDataList;
+        final int urlListSize = thumbList != null ? mThumbDataList.size() : 0;
 
-        if (mDataList == null || mDataList.size() != urlListSize) {
-            throw new IllegalArgumentException("dataList.size != thumbDataList.size");
+        if (thumbList == null || thumbList.size() < 1) {
+            setVisibility(View.GONE);
+            return;
+        } else {
+            setVisibility(View.VISIBLE);
+        }
+
+        if (thumbList.size() > mDataList.size()) {
+            throw new IllegalArgumentException("dataList.size(" + mDataList.size() + ") > thumbDataList.size(" + thumbList.size() + ")");
         }
 
         int column = 3;
@@ -103,10 +111,10 @@ public class MessagePicturesLayout extends FrameLayout implements View.OnClickLi
             final ImageView iPicture = iPictureList.get(i);
             if (i < urlListSize) {
                 iPicture.setVisibility(View.VISIBLE);
-                mVisiblePictureList.add(iPicture);
+                mVisiblePictureList.put(i, iPicture);
                 iPicture.setLayoutParams(lpChildImage);
                 iPicture.setBackgroundResource(R.drawable.default_picture);
-                Glide.with(getContext()).load(mDataList.get(i)).into(iPicture);
+                Glide.with(getContext()).load(thumbList.get(i)).into(iPicture);
                 iPicture.setTranslationX((i % column) * (imageSize + mSpace));
                 iPicture.setTranslationY((i / column) * (imageSize + mSpace));
             } else {
@@ -129,7 +137,7 @@ public class MessagePicturesLayout extends FrameLayout implements View.OnClickLi
     }
 
     public interface Callback {
-        void onThumbPictureClick(ImageView i, List<ImageView> imageGroupList, List<String> urlList);
+        void onThumbPictureClick(ImageView i, SparseArray<ImageView> imageGroupList, List<Uri> urlList);
     }
 
     public void setCallback(Callback callback) {
