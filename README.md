@@ -17,9 +17,17 @@
 
 在module的gradle
 ```
-    implementation 'com.byc:ImageWatcher:1.1.0'
+    	allprojects {
+    		repositories {
+    			...
+    			maven { url 'https://jitpack.io' }
+    		}
+    	}
+    	dependencies {
+    	        implementation 'com.github.byc4426:ImageWatcher:-SNAPSHOT'
+    	}
     or 下载 module
-    implementation project(':imagewatcher')
+        implementation project(':imagewatcher')
 ```
 
 #### 方法一
