@@ -18,6 +18,8 @@
 在module的gradle
 ```
     implementation 'com.byc:ImageWatcher:1.1.0'
+    or 下载 module
+    implementation project(':imagewatcher')
 ```
 
 #### 方法一
